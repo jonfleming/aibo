@@ -16,6 +16,15 @@
         {
             "type": "pwa-node",
             "request": "launch",
+            "name": "Event Listener",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "aibo_event.js"
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
             "name": "Call Action API",
             "skipFiles": [
                 "<node_internals>/**"
