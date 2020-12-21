@@ -1,8 +1,8 @@
 {
-  "name": "neo",
+  "name": "aibo",
   "version": "1.0.0",
   "description": "",
-  "main": "neo.js",
+  "main": "aibo_events.js",
   "scripts": {
     "start": "node ./bin/www",
     "test": "jest"
