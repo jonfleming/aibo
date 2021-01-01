@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "run",
+        "isBackground": true,
+        "dependsOn": ["vuejs: build"]
+      },
+      {
+        "label": "vuejs: serve",
+        "type": "npm",
+        "script": "serve",
+        "isBackground": true,
+        "options":{
+          "cwd": "${workspaceFolder}/client"
+        },
+        "problemMatcher":{
+          "base": "$tsc-watch",
+          "background":{
+            "activeOnStart": true,
+            "beginsPattern": "Starting development server",
+            "endsPattern": "Compiled successfully"
+          },
+        }
+      },
+      {
+        "label": "vuejs: build",
+        "type": "npm",
+        "script": "build",
+        "isBackground": true,
+        "options":{
+          "cwd": "${workspaceFolder}/client"
+        },
+        "problemMatcher":{
+          "base": "$tsc-watch",
+          "background":{
+            "activeOnStart": true,
+            "beginsPattern": "Building for production",
+            "endsPattern": "Compiled"
+          },
+        }
+      }
+    ]
+  }

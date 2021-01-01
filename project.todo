@@ -1,0 +1,15 @@
+UI:
+    ✔ Left align @done (12/24/2020, 5:47:34 PM)
+    ✔ Add "value" field for numeric parameters @done (12/24/2020, 5:47:40 PM)
+    ✔ populate dropdown lists @done (12/24/2020, 5:47:44 PM)
+    ☐ User <aibotarget> in v-for in aiboaction
+        ☐ Pass argument object as prop
+    ☐ Construct POST request from selected + arguments/values
+    ☐ Get response
+    ☐ Update log
+    ☐ Use provide/inject 
+    https://markus.oberlehner.net/blog/application-state-management-with-vue-3/
+    ☐ TypeScript
+    
+    
+
