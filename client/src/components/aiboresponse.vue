@@ -1,7 +1,7 @@
 <template>
     <div>
         <p class="text-left"><b>API Response</b>s</p>
-        <textarea class="ml-2" rows="20" :value="responses"></textarea>
+        <textarea class="ml-0" rows="15" :value="responses"></textarea>
     </div>
 </template>
 

@@ -3,17 +3,21 @@
         <div class="row text-center">
             <aiboimage/>
         </div>
+        <div class="row">
             <div class="form-group col-sm-3">
                 <aiboaction @myresponse="saveServerResponse" />
             </div>
-        <div class="form-group col-sm-2">
-          <span></span>
+            <div class="form-group col-sm-2">
+                <span></span>
+            </div>
+            <div class="form-group col-sm-7">
+                <aiboresponse :responses="responses"/>
+            </div>
         </div>
-        <div class="form-group col-sm-7">
-            <aiboresponse :responses="responses"/>
-        </div>
-        <div class="form-group col-sm-12">
-          <aibolog/>
+        <div class="row">
+            <div class="form-group col-sm-12">
+                <aibolog/>
+            </div>
         </div>
     </div>
 </template>

@@ -11,11 +11,11 @@
     "axios": "^0.21.1",
     "bootstrap": "^4.5.3",
     "core-js": "^3.6.5",
+    "hpagent": "^0.1.1",
     "jquery": "^3.5.1",
     "node": "^15.4.0",
     "npm": "^7.3.0",
-    "vue": "^3.0.0",
-    "vue-axios": "^3.2.0"
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

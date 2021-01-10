@@ -30,6 +30,7 @@
             ],
             "program": "server.js",
             "env": {"NODE_ENV":"development"},
+            "preLaunchTask":"vuejs: serve"
         }   
     ]
 }

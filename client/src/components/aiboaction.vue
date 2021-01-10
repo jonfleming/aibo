@@ -10,9 +10,9 @@
         </option>
       </select>
       <div v-if="selected">
-        <aibotarget @mychange="getValues" :arguments="arguments"/>
+        <aibotarget :arguments="arguments"/>
       </div>
-      <button class="form-control">Send</button>
+      <button v-if="selected" class="form-control">Send</button>
     </form>
   </div>
 </template>
@@ -20,7 +20,8 @@
 <script>
 import aibotarget from '@/components/aibotarget.vue';
 import axios from "axios";
-const aiboActions = require('./aiboActions');
+
+const aiboActions = require('./aiboActionList');
 
 export default {
   name: 'aiboaction',
@@ -46,22 +47,23 @@ export default {
     getValues(values) {
       this.values = values;
     },
-    async send(e) {
-      e.target.elements.forEach((element) => {
-        console.log 
-        if (element.localName === 'select') {
-          console.log(element.selectedOptions[0].text);
-        } else {
-          console.log(element.value);
-        }
-      });
-
+    async send(event) {
       let args = { };
+      
+      console.log(`Action: ${this.selected.action}`);
+      event.target.elements.forEach((element) => {
+        if (element.attributes['name']) {
+          // element.value = 'value' or 'Category|value|Mode'
+          let options = element.value.split('|');
+          let value = options[1] || options[0];
+          let name = element.attributes['name'].value;
 
-      Object.keys(this.values).forEach((key) => {
-        // eslint-disable-next-line
-        console.log(`Send ${key}: ${this.values[key].arg} = ${this.values[key].value}`);
-        args[this.values[key].arg] = this.values[key].value;
+          args[name] = isNaN(value) ? value : Number(value);
+          if (this.selected.action === 'play_motion') {
+            args['Mode'] = options[2] || 'NONE';
+          }
+          console.log(`arg: ${name} = ${isNaN(value) ? '"' + value + '"' : value}`);
+        }
       });
 
       const options = {
@@ -71,22 +73,16 @@ export default {
         data: {
           apiName: this.selected.action,
           arguments: args,
-        }
+        },
       };
 
       const { data }  = await axios(options);
       this.response += `${data.text}\n`;
       this.$emit('myresponse', this.response);
-      console.log("Response:", this.response, "Done.");
+      // console.log("Response:", this.response, "Done.");
     },
     actionSelected() {
       this.arguments = this.selected.arguments;
-      Object.keys(this.arguments).forEach((key) => {
-        // eslint-disable-next-line
-        console.log(`Key: ${key} Name: ${this.arguments[key].name} ${''
-          }Text: ${this.arguments[key].text} Values: ${JSON.stringify(this.arguments[key].values)}`); 
-        // Key: 0 Name: TargetType Text: Target Type Values: ['aibo','aibone','dice','pinkball']
-      });
     },
   },
 };

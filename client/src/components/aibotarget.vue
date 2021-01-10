@@ -5,19 +5,19 @@
           :value="argument.text">
             <p v-if="argument" class="text-left pt-3 mb-1 ml-2"><b>{{argument.text}}</b></p>
             <div v-if="isNaN(argument.input)">
-              <select v-if="argument" class="selectpicker form-control mt-2 p-0" :name="argument.name"
-                  v-model="values[index]" @change="argumentSelected">
-                  <option v-for="(item, position) in argument.values"
+              <select v-if="argument" class="selectpicker form-control mt-2 p-0" 
+                  :name="argument.name">
+                  <option v-for="(item, position) in handleValueArray(argument.values)"
                       :key="position"
-                      :value="{arg: argument.name, value: item}">
-                      {{item}}
+                      :value="argument.name + '|' + (cat(item))">
+                      {{item.description || item}}
                   </option>
               </select>
             </div>
             <div v-else>
-              <input class="m-2 p-1" type="text" :name="argument.name"
-                @change="argumentInput" 
-                v-model="argument.input">
+              <input class="m-2 p-1" type="text" 
+              :name="argument.name"
+              v-model="argument.input">
                 <i>{{argument.units}}</i>
             </div>
         </div>
@@ -30,32 +30,31 @@ export default {
   props: {
     arguments: Array,
   },
-  data() {
-    return {
-      selected: '',
-      values: {},
-    };
-  },
   methods: {
-    init() {
+    handleValueArray(value) {
+      if (value[0] && value[0].Category) {
+        return value.reduce((r, e) => { 
+          if(e.Mode) {
+            e.Mode.split('|').forEach(mode => {
+              r.push({Category: e.Category + '|' + mode, description: e.description + '|' + mode});
+            }); // for each
+          } else {
+            r.push({Category: e.Category, description: e.description });
+          }
 
+          return r;
+        }, []);
+      } else {
+        return value;
+      }
     },
-    argumentSelected() {
-      this.$emit('mychange', this.values);
-      Object.keys(this.values).forEach((key) => {
-        // eslint-disable-next-line
-        console.log(`Selected ${key}: ${this.values[key].arg} = ${this.values[key].value}`); 
-        // Selected 0: TargetType = aibone 
-      });
-    },
-    argumentInput(e) {
-      // eslint-disable-next-line
-      console.dir(e);
-      //console.log(JSON.stringify(e, null, 4));
-      // set this.values[argument.index].arg = arguments[argument.index].name
-      //     this.values[argument.index].value = arguments[argument.index].input
+    cat(thing) {
+      if (thing.Category) {
+        return thing.Category;
+      }
+      return thing;
     }
-  },
+  }
 };
 </script>
 <style scoped>

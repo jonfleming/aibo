@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { HttpsProxyAgent } = require('hpagent');
+// const { HttpsProxyAgent } = require('hpagent');
 
 const basePath = 'https://public.api.aibo.com/v1';
 const { deviceId, accessToken } = process.env;
@@ -17,20 +17,20 @@ class AiboAction {
       'Content-Type': 'application/json',
     };
 
+    // const agent = new HttpsProxyAgent({
+    //   keepAlive: true,
+    //   keepAliveMsecs: 1000,
+    //   maxSockets: 256,
+    //   maxFreeSockets: 256,
+    //   proxy: 'http://localhost:8888',
+    // });
+
     const options = {
       method,
       url,
       responseType: 'json',
       headers,
-      httpsAgent: new HttpsProxyAgent({
-        keepAlive: true,
-        keepAliveMsecs: 1000,
-        maxSockets: 256,
-        maxFreeSockets: 256,
-        scheduling: 'lifo',
-        proxy: 'http://localhost:8888',
-        rejectUnauthorized: false,
-      }),
+      // httpsAgent: agent,
     };
 
     if (method === 'POST') {
