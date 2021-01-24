@@ -9,17 +9,13 @@ module.exports = {
     // before: server,
     disableHostCheck: true,
     clientLogLevel: 'info',
+    host: '0.0.0.0',
     port: 81,
     hot: false,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
     },
-    proxy: {
-      '/sockjs-node': {
-        target: 'https://jonfleming.com', 
-      }
-    }
   },
   chainWebpack: config => config.optimization.minimize(false)
 };

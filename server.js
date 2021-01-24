@@ -1,16 +1,16 @@
 const http = require('http');
 const cors = require('cors');
-// const path = require('path');
+const path = require('path');
 const express = require('express');
 const AiboAction = require('./AiboAction');
 
 const corsOptions = {
   origin: ['http://jonfleming.net', 'https://jonfleming.net:81', 'http://localhost:8080', 'http://localhost'],
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
 };
 
 const app = express();
-// const staticFiles = path.join(__dirname, 'client', 'dist');
+const staticFiles = path.join(__dirname, 'client', 'dist');
 
 function log(message, object) {
   // eslint-disable-next-line
@@ -19,7 +19,7 @@ function log(message, object) {
 
 app.use(express.json());
 app.use(cors(corsOptions));
-// app.use(express.static(staticFiles));
+app.use(express.static(staticFiles));
 
 app.post('/action', (req, res) => {
   log('Action Headers:', req.headers);

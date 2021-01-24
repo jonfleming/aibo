@@ -11,5 +11,8 @@ UI:
     https://markus.oberlehner.net/blog/application-state-management-with-vue-3/
     ☐ TypeScript
     
+When using vue dev server, can't connect using https://jonfleming.net:8080 (invalid host header)
+When using vue build and express staticFiles, can't connect using https://jonfleming.net
+
     
 
