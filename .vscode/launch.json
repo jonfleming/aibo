@@ -2,6 +2,16 @@
     // "preLaunchTask": "vuejs: build",
     "version": "0.2.0",
     "configurations": [
+        {
+            "name": "Launch Node Program",
+            "program": "${workspaceFolder}/server.js",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node",
+            "console":"integratedTerminal"
+        },
 
         {
             "type": "node",
@@ -24,7 +34,7 @@
             "type": "pwa-node",
             "request": "launch",
             "name": "Launch server",
-            "console": "integratedTerminal",
+            "console": "internalConsole",
             "skipFiles": [
                 "<node_internals>/**"
             ],

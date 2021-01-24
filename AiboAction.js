@@ -41,7 +41,7 @@ class AiboAction {
 
     try {
       const response = await axios(options);
-      // console.dir(response);
+      //console.dir(response);
       return response;
     } catch (error) {
       return { error };
@@ -54,6 +54,7 @@ class AiboAction {
 
     try {
       const response = await this.request(url, 'POST');
+      console.dir(response);
       data = response.data;
     } catch (error) {
       return { result: 'failed', error };

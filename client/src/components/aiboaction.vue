@@ -68,7 +68,7 @@ export default {
 
       const options = {
         method: 'post',
-        url: 'https://jonfleming.net/action',
+        url: 'https://aibo.jonfleming.net/action',
         headers: {'x-security-token': 'abc123'},
         data: {
           apiName: this.selected.action,

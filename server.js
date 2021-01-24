@@ -5,7 +5,7 @@ const express = require('express');
 const AiboAction = require('./AiboAction');
 
 const corsOptions = {
-  origin: ['http://jonfleming.net', 'https://jonfleming.net:81', 'http://localhost:8080', 'http://localhost'],
+  origin: ['https://jonfleming.net', 'https://jonfleming.net:81', 'https://aibo.jonfleming.net', 'http://localhost:8080', 'http://localhost'],
   optionsSuccessStatus: 200,
 };
 
@@ -17,10 +17,12 @@ function log(message, object) {
   console.log(message + ': ' + JSON.stringify(object, null, 4));
 }
 
+console.log('here');
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.static(staticFiles));
 
+app.options('/action', cors());
 app.post('/action', (req, res) => {
   log('Action Headers:', req.headers);
   log('Body:', req.body);
@@ -63,7 +65,8 @@ app.get('/favicon.ico', (req, res) => {
 });
 
 const httpServer = http.createServer(app);
-httpServer.listen(80);
+httpServer.listen(81);
 
 // eslint-disable-next-line
-log('Listening on 80', {});
+console.log('Listening on ', httpServer.address().port);
+log('Listening on 81',{});
