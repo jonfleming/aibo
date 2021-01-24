@@ -68,5 +68,4 @@ const httpServer = http.createServer(app);
 httpServer.listen(81);
 
 // eslint-disable-next-line
-console.log('Listening on ', httpServer.address().port);
-log('Listening on 81',{});
+log(`Listening on ${httpServer.address().port}`,{});
