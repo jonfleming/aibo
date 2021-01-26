@@ -17,24 +17,26 @@ function log(message, object) {
   console.log(message + ': ' + JSON.stringify(object, null, 4));
 }
 
-console.log('here');
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.static(staticFiles));
 
 app.options('/action', cors());
 app.post('/action', (req, res) => {
-  log('Action Headers:', req.headers);
   log('Body:', req.body);
 
   const aibo = new AiboAction(req.body.apiName, req.body.arguments);
   aibo.sendRequest()
     .then((result) => {
-      if (result.error) {
-        res.status(200).send({ text: `${result.text} Error: ${result.error}` });
-      } else {
-        res.status(200).send(result);
-      }
+      res.status(200).send(result);
+    });
+});
+
+app.get('/result/:executionId', (req, res) => {
+  const aibo = new AiboAction();
+  aibo.getResult(req.params.executionId)
+    .then((result) => {
+      res.status(200).send(result);
     });
 });
 
@@ -68,4 +70,4 @@ const httpServer = http.createServer(app);
 httpServer.listen(81);
 
 // eslint-disable-next-line
-log(`Listening on ${httpServer.address().port}`,{});
+log(`Listening on ${httpServer.address().port}`, {});

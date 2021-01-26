@@ -2,17 +2,21 @@ UI:
     ✔ Left align @done (12/24/2020, 5:47:34 PM)
     ✔ Add "value" field for numeric parameters @done (12/24/2020, 5:47:40 PM)
     ✔ populate dropdown lists @done (12/24/2020, 5:47:44 PM)
-    ☐ User <aibotarget> in v-for in aiboaction
-        ☐ Pass argument object as prop
-    ☐ Construct POST request from selected + arguments/values
-    ☐ Get response
-    ☐ Update log
+    ✔ Use <aibotarget> in v-for in aiboaction @done (1/24/2021, 1:52:00 PM)
+        ✔ Pass argument object as prop @done (1/24/2021, 1:52:02 PM)
+    ✔ Construct POST request from selected + arguments/values @done (1/24/2021, 1:52:05 PM)
+    ✔ Get response @done (1/24/2021, 1:52:07 PM)
+    ✔ Update log @done (1/24/2021, 1:52:09 PM)
     ☐ Use provide/inject 
     https://markus.oberlehner.net/blog/application-state-management-with-vue-3/
     ☐ TypeScript
     
-When using vue dev server, can't connect using https://jonfleming.net:8080 (invalid host header)
-When using vue build and express staticFiles, can't connect using https://jonfleming.net
-
-    
+Build:
+    ✔ When using vue dev server, can't connect using https://jonfleming.net:8080 (invalid host header) @done (1/24/2021, 1:45:05 PM)
+    Using UpCloud, NGINX, aibo.jonfleming.net -> :81 
+    ✔ When using vue build and express staticFiles, can't connect using https://jonfleming.net @done (1/24/2021, 1:46:58 PM)
+    ✔ Set up Code-Server on UpCloud @done (1/24/2021, 1:48:02 PM)
+    ☐ Create alias for running: git pull, npm run build, node server.js
+    ☐ Use setInterval to poll public.api.aibo.com for result
+    ☐ Put code-server behind pomerium.io (will also allow putting aibo behind proxy)
 

@@ -3,12 +3,13 @@ const axios = require('axios');
 
 const basePath = 'https://public.api.aibo.com/v1';
 const { deviceId, accessToken } = process.env;
-const timeout = 50;
 
 class AiboAction {
   constructor(apiName, data) {
-    this.apiName = apiName;
-    this.data = data;
+    if (apiName) {
+      this.apiName = apiName;
+      this.data = data;
+    }
   }
 
   async request(url, method) {
@@ -41,7 +42,6 @@ class AiboAction {
 
     try {
       const response = await axios(options);
-      //console.dir(response);
       return response;
     } catch (error) {
       return { error };
@@ -54,29 +54,25 @@ class AiboAction {
 
     try {
       const response = await this.request(url, 'POST');
-      console.dir(response);
       data = response.data;
     } catch (error) {
-      return { result: 'failed', error };
+      return { text: 'failed', error };
     }
 
     const { executionId } = data;
-    const resultUrl = `${basePath}/executions/${executionId}`;
-    let t = 0;
-    while (t < timeout) {
-      // eslint-disable-next-line
-      const result = await this.request(resultUrl, 'GET');
-      data = result.data;
 
-      if (data.status === 'SUCCEEDED') {
-        return { text: 'success' };
-      }
-      if (data.status === 'FAILED') {
-        return { text: 'failed', error: 'api.aibo failed' };
-      }
-      t += 1;
-    }
-    return { text: 'failed', error: 'timed out waiting for success' };
+    return { text: 'sent', executionId };
+  }
+
+  async getResult(executionId) {
+    const resultUrl = `${basePath}/executions/${executionId}`;
+    const result = await this.request(resultUrl, 'GET');
+
+    // {status: 200, statusText:'OK', config: {url:...},
+    //   data: { executionId: '...', status: 'IN_PROGRESS', result: null }
+    //   headers: {content-type: 'application/json'}
+    //   request: ... }
+    return result.data || { text: 'Error calling getResult' };
   }
 }
 

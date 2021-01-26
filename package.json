@@ -7,6 +7,7 @@
     "start": "node server.js",
     "debug": "nodemon --inspect server.js",
     "test": "jest",
+    "build": "cd client && npm run build && cd ..",
     "all": "cd client && npm run build && cd .. && nodemon --inspect server.js"
   },
   "author": "",

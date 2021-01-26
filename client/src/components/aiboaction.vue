@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form class="form-horizontal row p-2" @submit.prevent="send">
+    <form class="form-horizontal row p-2" @submit.prevent="sendAction">
       <p class="text-left"><b>Action</b></p>
       <select class="form-control" v-model="selected" @change="actionSelected">
         <option v-for="(item, index) in actions"
@@ -22,6 +22,7 @@ import aibotarget from '@/components/aibotarget.vue';
 import axios from "axios";
 
 const aiboActions = require('./aiboActionList');
+const TIMEOUT = 5;
 
 export default {
   name: 'aiboaction',
@@ -34,7 +35,12 @@ export default {
       arguments: [],
       values: {},
       actions: aiboActions,
-      response: ''
+      response: '',
+      logMessages: '',
+      executionId: '',
+      timeout: TIMEOUT,
+      interval: null,
+      baseUrl: process.env.VUE_APP_AIBO_URL,
     };
   },
   mounted() {
@@ -47,10 +53,18 @@ export default {
     getValues(values) {
       this.values = values;
     },
-    async send(event) {
+    log(message) {
+      this.logMessages += `${message}\n`;
+      this.$emit('logMsg', this.logMessages);
+    },
+    async send(options) {
+      const { data }  = await axios(options);
+      return data
+    },
+    async sendAction(event) {
       let args = { };
       
-      console.log(`Action: ${this.selected.action}`);
+      this.log(`Action: ${this.selected.action}`)
       event.target.elements.forEach((element) => {
         if (element.attributes['name']) {
           // element.value = 'value' or 'Category|value|Mode'
@@ -62,13 +76,13 @@ export default {
           if (this.selected.action === 'play_motion') {
             args['Mode'] = options[2] || 'NONE';
           }
-          console.log(`arg: ${name} = ${isNaN(value) ? '"' + value + '"' : value}`);
+          this.log(`arg: ${name} = ${isNaN(value) ? '"' + value + '"' : value}`);
         }
       });
 
       const options = {
         method: 'post',
-        url: 'https://aibo.jonfleming.net/action',
+        url: `${this.baseUrl}/action`,
         headers: {'x-security-token': 'abc123'},
         data: {
           apiName: this.selected.action,
@@ -76,10 +90,56 @@ export default {
         },
       };
 
-      const { data }  = await axios(options);
-      this.response += `${data.text}\n`;
+      const result = await this.send(options);
+      this.response += `${result.text}\n`;
+      this.$emit('myresponse', this.response);      
+      this.executionId = result.executionId;
+      this.timeout = TIMEOUT;
+      this.interval = setInterval(this.getResult, 3500);
+
+    },
+    async getResult() {
+      let done = false;
+
+      if (this.timeout > 0) {
+        this.timeout--;
+        const options = {
+          method: 'get',
+          url: `${this.baseUrl}/result/${this.executionId}`,
+          headers: {'x-security-token': 'abc123'},
+        };
+
+        const result = await this.send(options);
+        this.log(`Status: ${result.status}`);
+        switch(result.status) {
+          case 'ACCEPTED':
+            this.response += `Action accepted\n`;
+            done = false;
+            break;
+          case 'IN_PROGRESS':
+            this.response += `Action in progress\n`;
+            done = false;
+            break;
+          case 'SUCCEEDED':
+            this.response += `Action succeeded\n`;
+            done = true;
+            break;
+          default:
+            done = true;
+            this.response += `Action failed\n`;
+            break;
+            
+        }
+      } else {
+        done = true;
+        this.response += `Timed out waiting for result\n`;
+      }
+
+      if (done) {        
+        clearInterval(this.interval);
+      }
+
       this.$emit('myresponse', this.response);
-      // console.log("Response:", this.response, "Done.");
     },
     actionSelected() {
       this.arguments = this.selected.arguments;
