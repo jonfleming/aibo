@@ -67,7 +67,7 @@ app.get('/favicon.ico', (req, res) => {
 });
 
 const httpServer = http.createServer(app);
-httpServer.listen(81);
+httpServer.listen(process.env.NODE_PORT || 81);
 
 // eslint-disable-next-line
 log(`Listening on ${httpServer.address().port}`, {});

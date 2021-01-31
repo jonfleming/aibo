@@ -1,6 +1,7 @@
 <template>
   <div>
-    <form class="form-horizontal row p-2" @submit.prevent="sendAction">
+    Base URL: {{baseUrl}}
+    <form class="form-horizontal row p-2" @submit.prevent="send">
       <p class="text-left"><b>Action</b></p>
       <select class="form-control" v-model="selected" @change="actionSelected">
         <option v-for="(item, index) in actions"
@@ -19,9 +20,9 @@
 
 <script>
 import aibotarget from '@/components/aibotarget.vue';
-import axios from "axios";
+import AiboCommand from '@/components/aiboCommand';
+import aiboActions from '@/components/aiboActionList';
 
-const aiboActions = require('./aiboActionList');
 const TIMEOUT = 5;
 
 export default {
@@ -57,11 +58,7 @@ export default {
       this.logMessages += `${message}\n`;
       this.$emit('logMsg', this.logMessages);
     },
-    async send(options) {
-      const { data }  = await axios(options);
-      return data
-    },
-    async sendAction(event) {
+    async send(event) {
       let args = { };
       
       this.log(`Action: ${this.selected.action}`)
@@ -80,65 +77,15 @@ export default {
         }
       });
 
-      const options = {
-        method: 'post',
-        url: `${this.baseUrl}/action`,
-        headers: {'x-security-token': 'abc123'},
-        data: {
-          apiName: this.selected.action,
-          arguments: args,
-        },
-      };
-
-      const result = await this.send(options);
+      console.log(`BaseUrl: ${this.baseUrl}`);
+      const command  = new AiboCommand(this.baseUrl, this.selected.action, args, this.getResult, TIMEOUT);
+      const result = await command.sendAction();
       this.response += `${result.text}\n`;
       this.$emit('myresponse', this.response);      
-      this.executionId = result.executionId;
       this.timeout = TIMEOUT;
-      this.interval = setInterval(this.getResult, 3500);
-
     },
-    async getResult() {
-      let done = false;
-
-      if (this.timeout > 0) {
-        this.timeout--;
-        const options = {
-          method: 'get',
-          url: `${this.baseUrl}/result/${this.executionId}`,
-          headers: {'x-security-token': 'abc123'},
-        };
-
-        const result = await this.send(options);
-        this.log(`Status: ${result.status}`);
-        switch(result.status) {
-          case 'ACCEPTED':
-            this.response += `Action accepted\n`;
-            done = false;
-            break;
-          case 'IN_PROGRESS':
-            this.response += `Action in progress\n`;
-            done = false;
-            break;
-          case 'SUCCEEDED':
-            this.response += `Action succeeded\n`;
-            done = true;
-            break;
-          default:
-            done = true;
-            this.response += `Action failed\n`;
-            break;
-            
-        }
-      } else {
-        done = true;
-        this.response += `Timed out waiting for result\n`;
-      }
-
-      if (done) {        
-        clearInterval(this.interval);
-      }
-
+    async getResult(response) {
+      this.response += response;
       this.$emit('myresponse', this.response);
     },
     actionSelected() {

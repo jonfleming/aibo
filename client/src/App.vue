@@ -2,11 +2,11 @@
     <div class="container">
         <div class="row text-center">
           <div class="col-sm-5">
-            <button style="width:150px">Sit</button>
-            <button style="width:150px">Stand</button>
-            <button style="width:150px">Sing</button>
-            <button style="width:150px">Dance</button>
-            <button style="width:150px">Charge</button>
+            <button v-on:click="action_sit" style="width:150px">Sit</button>
+            <button v-on:click="action_stand" style="width:150px">Stand</button>
+            <button v-on:click="action_sing" style="width:150px">Sing</button>
+            <button v-on:click="action_dance" style="width:150px">Dance</button>
+            <button v-on:click="action_charge" style="width:150px">Charge</button>
           </div>
             <div class="col-sm-5">
               <aiboimage/>
@@ -36,6 +36,9 @@ import aiboimage from '@/components/aiboimage.vue';
 import aiboaction from '@/components/aiboaction.vue';
 import aiboresponse from '@/components/aiboresponse.vue';
 import aibolog from '@/components/aibolog.vue';
+import AiboCommand from '@/components/aiboCommand';
+
+const TIMEOUT = 5;
 
 export default {
   name: 'App',
@@ -49,6 +52,7 @@ export default {
     return {
       responses: '',
       logMessages: '',
+      baseUrl: process.env.VUE_APP_AIBO_URL,
     }
   },
   methods: {
@@ -57,6 +61,29 @@ export default {
     },
     saveLogMessage(text) {
       this.logMessages = text;
+    },
+    action_sit() {
+      this.send({apiName: "change_posture", arguments: {FinalPosture: "sit"}});
+    },
+    action_stand() {
+      this.send({apiName: "change_posture", arguments: {FinalPosture: "sit_and_raise_both_hands"}});
+    },
+    action_sing() {
+      this.send({apiName: "play_motion", arguments: {Category: "sing", Mode: "NONE"}});
+    },
+    action_dance() {
+      this.send({apiName: "play_motion", arguments: {Category: "dance", Mode: "NONE"}});
+    },
+    action_charge() {
+      this.send({apiName: "move_to_position", arguments: {TargetType: "charging_station"}});
+    },
+    async send(action) {
+      const command  = new AiboCommand(this.baseUrl, action.apiName, action.arguments, this.getResult, TIMEOUT);
+      const response = await command.sendAction();
+      this.responses += `${response.text}\n`;
+    },
+    async getResult(response) {
+      this.responses += response;
     },
   },
 };
