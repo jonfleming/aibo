@@ -12,6 +12,6 @@ export default {
 img {
   align-content: center;
   width: 250px;
-  height: auto;
+  height: 156px;
 }
 </style>
