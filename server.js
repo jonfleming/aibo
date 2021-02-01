@@ -5,7 +5,7 @@ const express = require('express');
 const AiboAction = require('./AiboAction');
 
 const corsOptions = {
-  origin: ['https://jonfleming.net', 'https://jonfleming.net:81', 'https://aibo.jonfleming.net', 'http://localhost:8080', 'http://localhost'],
+  origin: ['https://jonfleming.net', 'https://jonfleming.net:81', 'https://aibo.jonfleming.net', 'http://localhost:8080', 'http://localhost:81'],
   optionsSuccessStatus: 200,
 };
 
@@ -14,7 +14,7 @@ const staticFiles = path.join(__dirname, 'client', 'dist');
 
 function log(message, object) {
   // eslint-disable-next-line
-  console.log(message + ': ' + JSON.stringify(object, null, 4));
+  console.log(message + JSON.stringify(object, null, 4));
 }
 
 app.use(express.json());
@@ -40,8 +40,9 @@ app.get('/result/:executionId', (req, res) => {
     });
 });
 
-app.post('/aibo', (req, res) => {
+app.post('/event', (req, res) => {
   // eslint-disable-next-line
+  log('Request URL:', req.url);
   log('Aibo Headers:', req.headers);
   log('Body:', req.body);
   if (req.headers['x-security-token'] !== 'abc123') {
