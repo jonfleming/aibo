@@ -77,7 +77,7 @@ export default {
         }
       });
 
-      console.log(`BaseUrl: ${this.baseUrl}`);
+      console.log(`BaseUrl: ${this.baseUrl} `);
       const command  = new AiboCommand(this.baseUrl, this.selected.action, args, this.getResult, TIMEOUT);
       const result = await command.sendAction();
       this.response += `${result.text}\n`;

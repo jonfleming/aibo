@@ -4,7 +4,7 @@ const axios = require('axios');
 const basePath = 'https://public.api.aibo.com/v1';
 const { deviceId, accessToken } = process.env;
 
-class AiboAction {
+class AiboRequest {
   constructor(apiName, data) {
     if (apiName) {
       this.apiName = apiName;
@@ -12,6 +12,11 @@ class AiboAction {
     }
   }
 
+  log(message, object) {
+    // eslint-disable-next-line
+    console.log(`${message}: ${object ? JSON.stringify(object, null, 4) : ''}`);
+  }
+  
   async request(url, method) {
     const headers = {
       Authorization: `Bearer ${accessToken}`,
@@ -41,9 +46,12 @@ class AiboAction {
     }
 
     try {
+      this.log('aiboRequest options', options);
       const response = await axios(options);
+      this.log(`aiboRequest response ${response.status} data:\n`, response.data);
       return response;
     } catch (error) {
+      this.log('request Error', error);
       return { error };
     }
   }
@@ -52,11 +60,19 @@ class AiboAction {
     const url = `${basePath}/devices/${deviceId}/capabilities/${this.apiName}/execute`;
     let data;
 
+
     try {
+      this.log(`sendRequest to ${url}`);
       const response = await this.request(url, 'POST');
+      this.log(`POST Request Response: ${response.status}`, response.data);
+
+      if (response.error) {
+        return  { text: `failed request: ${error.message} `, error };
+      }
+
       data = response.data;
     } catch (error) {
-      return { text: 'failed', error };
+      return { text: 'failed Response', error };
     }
 
     const { executionId } = data;
@@ -65,6 +81,7 @@ class AiboAction {
   }
 
   async getResult(executionId) {
+    this.log(`getResult executionId: ${executionId}`);
     const resultUrl = `${basePath}/executions/${executionId}`;
     const result = await this.request(resultUrl, 'GET');
 
@@ -76,4 +93,4 @@ class AiboAction {
   }
 }
 
-module.exports = AiboAction;
+module.exports = AiboRequest;

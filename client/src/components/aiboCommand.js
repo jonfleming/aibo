@@ -1,7 +1,8 @@
 import axios from "axios";
 
-// const sendAction = require('./sendAction'); 
-// sendAction(this.baseUrl, this.selected.action, args, this.getResult, 5);
+// const AiboCommand = require('./aiboCommand'); 
+// const command = new AiboCommand(this.baseUrl, this.selected.action, args, this.getResult, 5);
+// command.sendAction();
 
 // eslint-disable-next-line no-unused-vars
 let interval;
@@ -16,8 +17,9 @@ export default class AiboCommand {
     this.executionId;
   }
 
-  log(msg) {
-    console.log(`AiboCommand: ${msg}`);
+  log(message, object) {
+    // eslint-disable-next-line
+    console.log(message + JSON.stringify(object, null, 4));
   }
 
   async send(options) {
@@ -36,13 +38,20 @@ export default class AiboCommand {
       },
     };
 
+    this.log('sencAction Options', options);
     const result = await this.send(options);    
-    this.executionId = result.executionId;
-    this.interval = setInterval(() => { this.getResult(this); }, 3500);
+    this.log('sendAction result', result);
+    if (result.executionId && result.executionId !== 'undefined') {
+      this.executionId = result.executionId;
+      this.log(`setting execution id=${this.executionId}`, {});
+      this.interval = setInterval(() => { this.getResult(this); }, 3500);
+    }
+    
     return result;
   }
 
   async getResult(aibo) {
+    this.log('getResult triggered', aibo);
     let done = false;
     let response = '';
 
@@ -55,23 +64,23 @@ export default class AiboCommand {
       };
 
       const result = await aibo.send(options);
-      aibo.log(`Status: ${result.status}`);
+      aibo.log(`Status: ${result.status}`, result);
       switch (result.status) {
         case 'ACCEPTED':
-          response = `Action accepted\n`;
+          response = `Status: Action accepted\n`;
           done = false;
           break;
         case 'IN_PROGRESS':
-          response = `Action in progress\n`;
+          response = `Status: Action in progress\n`;
           done = false;
           break;
         case 'SUCCEEDED':
-          response = `Action succeeded\n`;
+          response = `Status: Action succeeded\n`;
           done = true;
           break;
         default:
           done = true;
-          response = `Action failed\n`;
+          response = `Status: Action failed - ${result.status}\n`;
           break;
             
       }
