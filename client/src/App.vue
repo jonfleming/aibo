@@ -1,7 +1,18 @@
 <template>
     <div class="container">
+        <div class="row">
+          <div class="col-sm-3">
+            User:
+          </div>
+          <div class="col-sm-6">
+            Aibo:
+          </div>
+          <div class="col-sm-3">
+            <a href="#">Unlink App</a>
+          </div>
+        </div>
         <div class="row text-center">
-          <div class="col-sm-5">
+          <div class="col-sm-4">
             <button v-on:click="action_sit" style="width:150px">Sit</button>
             <button v-on:click="action_stand" style="width:150px">Stand</button>
             <button v-on:click="action_sing" style="width:150px">Sing</button>
@@ -11,6 +22,11 @@
             <div class="col-sm-5">
               <aiboimage/>
             </div>
+          <div>
+            <button v-on:click="logout()">
+            Logout
+            </button>
+          </div>            
         </div>
         <div class="row">
             <div class="form-group col-sm-3">
@@ -85,6 +101,9 @@ export default {
     async getResult(response) {
       this.responses += response;
     },
+    async logout () {
+      window.location.href = `/logout`;
+    }
   },
 };
 </script>

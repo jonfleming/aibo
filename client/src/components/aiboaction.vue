@@ -1,6 +1,5 @@
 <template>
   <div>
-    Base URL: {{baseUrl}}
     <form class="form-horizontal row p-2" @submit.prevent="send">
       <p class="text-left"><b>Action</b></p>
       <select class="form-control" v-model="selected" @change="actionSelected">
