@@ -6,8 +6,8 @@ const session = require('express-session');
 const AiboRequest = require('./AiboRequest');
 
 const CLIENT_ID = process.env.AIBO_CLIENT_ID;
-const CLIENT_SECRET = process.env.AIBO_CLIENT_SECRET;
-const REDIRECT_URI= 'https://aibo.jonfleming.net/auth';
+// const CLIENT_SECRET = process.env.AIBO_CLIENT_SECRET;
+const REDIRECT_URI = 'https://aibo.jonfleming.net/auth';
 
 const corsOptions = {
   origin: ['https://jonfleming.net', 'https://jonfleming.net:81', 'https://aibo.jonfleming.net', 'http://localhost:8080', 'http://localhost:81'],
@@ -23,12 +23,12 @@ function log(message, object) {
 }
 
 function randomGenerate(len) {
-  let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let text = '';
 
-  for (let i = 0; i < len; i++)
+  for (let i = 0; i < len; i += 1) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
-  
+  }
   return text;
 }
 
@@ -41,8 +41,8 @@ app.use(session({
   secret: 'qsxrfvuk,',
   resave: false,
   saveUninitialized: false,
-  cookie: { path: '/', httpOnly: true, secure: true, maxAge: null }
-}))
+  cookie: { path: '/', httpOnly: true, secure: true, maxAge: null },
+}));
 
 app.get('/', (req, res, next) => {
   log('root', req.query);
@@ -55,7 +55,7 @@ app.get('/', (req, res, next) => {
 
     log(`URL: ${url}`);
     res.send(`<html><body><a href="${url}">Sign In</a></body></html>`);
-    // res.redirect(url);
+    res.redirect(url);
   } else {
     next();
   }
@@ -64,8 +64,7 @@ app.get('/', (req, res, next) => {
 app.use(express.static(staticFiles));
 
 app.get('/auth', (req, res) => {
-  const code = req.query.code;
-  const state = req.query.state;
+  const { code, state } = req.query;
 
   if (state === req.session.state) {
     // request access token
@@ -74,9 +73,9 @@ app.get('/auth', (req, res) => {
     req.session.authenticated = true;
     res.send('Connected');
   }
-  log(`authenticated`, req.session);
-  log(`auth params`, req.params);
-  log(`auth query`, req.query);
+  log(`authenticated code: ${code}`, req.session);
+  log('auth params', req.params);
+  log('auth query', req.query);
 });
 
 app.post('/action', (req, res) => {
@@ -85,7 +84,7 @@ app.post('/action', (req, res) => {
   const aibo = new AiboRequest(req.body.apiName, req.body.arguments);
   aibo.sendRequest()
     .then((result) => {
-      log(`/action send res 200`);
+      log('/action send res 200');
       res.status(200).send(result);
     });
 });
@@ -97,11 +96,11 @@ app.get('/result/:executionId', (req, res) => {
     const aibo = new AiboRequest();
     aibo.getResult(req.params.executionId)
       .then((result) => {
-        log(`/result send res 200`);
+        log('/result send res 200');
         res.status(200).send(result);
       });
   } else {
-    log(`/result send res 200 no executionId`);
+    log('/result send res 200 no executionId');
     res.status(200).send({text: 'missing executionId'});
   }
 });
@@ -111,7 +110,7 @@ app.post('/event', (req, res) => {
   log('Aibo Headers:', req.headers);
   log('Body:', req.body);
   if (req.headers['x-security-token'] !== 'abc123') {
-    log(`/event send res 403`);
+    log('/event send res 403');
     res.status(403).send('Bad security token');
     return;
   }
@@ -120,20 +119,20 @@ app.post('/event', (req, res) => {
   if (body.eventId) {
     if (body.eventId === 'endpoint_verification') {
       const reply = { challenge: body.challenge };
-      log(`/event send json`);
+      log('/event send json');
       res.json(reply);
     } else {
-      log(`/event send OK`);
+      log('/event send OK');
       res.send('OK');
     }
   } else {
-    log(`/event send No event`);
+    log('/event send No event');
     res.send('No event');
   }
 });
 
 app.get('/favicon.ico', (req, res) => {
-  log(`/favicon send file`);
+  log('/favicon send file');
   res.sendFile('/favicon.ico', { root: __dirname });
 });
 
