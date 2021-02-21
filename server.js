@@ -1,20 +1,32 @@
 const http = require('http');
+const fetch = require('node-fetch');
 const cors = require('cors');
+const session = require('express-session');
 const path = require('path');
 const express = require('express');
-const session = require('express-session');
+const app = express();
+const httpServer = http.createServer(app);
+const io = require('socket.io')(httpServer);
+
+io.on('connection', client => {
+  client.on('login', data => {
+    
+  });
+  client.on('disconnect', () => {});
+});
+
 const AiboRequest = require('./AiboRequest');
 
 const CLIENT_ID = process.env.AIBO_CLIENT_ID;
-// const CLIENT_SECRET = process.env.AIBO_CLIENT_SECRET;
+const CLIENT_SECRET = process.env.AIBO_CLIENT_SECRET;
 const REDIRECT_URI = 'https://aibo.jonfleming.net/auth';
+const BASE_URL = 'https://myaibo.aibo.com';
 
 const corsOptions = {
   origin: ['https://jonfleming.net', 'https://jonfleming.net:81', 'https://aibo.jonfleming.net', 'http://localhost:8080', 'http://localhost:81'],
   optionsSuccessStatus: 200,
 };
 
-const app = express();
 const staticFiles = path.join(__dirname, 'client', 'dist');
 
 function log(message, object) {
@@ -30,6 +42,40 @@ function randomGenerate(len) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
+}
+
+async function getAccessToken(code) {
+  const url = `${BASE_URL}/v1//oauth2/token`;
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: '*cors', 
+    cache: 'no-cache', 
+    credentials: 'same-origin', 
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
+    body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}`
+  });
+  return response.json();
+}
+
+async function getDeviceId(req) {
+  const url = `${BASE_URL}/v1/devices`;
+  const response = await fetch(url, {
+    method: 'GET',
+    mode: '*cors', 
+    cache: 'no-cache', 
+    credentials: 'same-origin', 
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': `Bearer ${req.session.accessToken}`,
+    },
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
+  });
+  return response.json();
 }
 
 app.use(express.json());
@@ -50,11 +96,11 @@ app.get('/', (req, res, next) => {
   if(!req.session.authenticated) {
     req.session.state = randomGenerate(12);
     log(`state: ${req.session.state}`);
-    const url = `https://myaibo.aibo.com/account_link.html?state=${req.session.state}&` +
+    const url = `${BASE_URL}/account_link.html?state=${req.session.state}&` +
     `client_id=${CLIENT_ID}&scope=pub&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
     log(`URL: ${url}`);
-    res.send(`<html><body><a href="${url}">Sign In</a></body></html>`);
+    //res.send(`<html><body><a href="${url}">Sign In</a></body></html>`);
     res.redirect(url);
   } else {
     next();
@@ -63,19 +109,21 @@ app.get('/', (req, res, next) => {
 
 app.use(express.static(staticFiles));
 
-app.get('/auth', (req, res) => {
+app.get('/auth', async (req, res) => {
   const { code, state } = req.query;
+  log(`code: ${code}`);
+  log('query',  req.query);
+  log('session', req.session);
 
   if (state === req.session.state) {
-    // request access token
-    // get deviceId
-    // update header
+    const tokenResponse = await getAccessToken(code);
+    Object.assign(tokenResponse, req.session);
     req.session.authenticated = true;
-    res.send('Connected');
+
+    const deviceResponse = await getDeviceId(req);
+    Object.assign(deviceResponse, req.session);
+    io.emit('auth', req.session);
   }
-  log(`authenticated code: ${code}`, req.session);
-  log('auth params', req.params);
-  log('auth query', req.query);
 });
 
 app.post('/action', (req, res) => {
@@ -136,8 +184,8 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile('/favicon.ico', { root: __dirname });
 });
 
-const httpServer = http.createServer(app);
 httpServer.listen(process.env.NODE_PORT || 81);
+
 
 // eslint-disable-next-line
 log(`Listening on ${httpServer.address().port}`);

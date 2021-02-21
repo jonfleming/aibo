@@ -20,3 +20,6 @@ Build:
     ☐ Use setInterval to poll public.api.aibo.com for result
     ☐ Put code-server behind pomerium.io (will also allow putting aibo behind proxy)
 
+Linkable app
+    ☐ Check /auth query for accessToken and skip tokenRequest. Update session and redirect to /
+    ☐ send deviceId and accessToken from session to AiboRequest constructor (change from const to let)

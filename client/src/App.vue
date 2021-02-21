@@ -2,52 +2,55 @@
     <div class="container">
         <div class="row">
           <div class="col-sm-3">
-            User:
+            Name:{{nickname}}
           </div>
           <div class="col-sm-6">
-            Aibo:
+            Aibo:{{deviceId}}
           </div>
           <div class="col-sm-3">
             <a href="#">Unlink App</a>
           </div>
         </div>
-        <div class="row text-center">
-          <div class="col-sm-4">
-            <button v-on:click="action_sit" style="width:150px">Sit</button>
-            <button v-on:click="action_stand" style="width:150px">Stand</button>
-            <button v-on:click="action_sing" style="width:150px">Sing</button>
-            <button v-on:click="action_dance" style="width:150px">Dance</button>
-            <button v-on:click="action_charge" style="width:150px">Charge</button>
+        <div v-if="authenticated">
+          <div class="row text-center">
+            <div class="col-sm-4">
+              <button v-on:click="action_sit" style="width:150px">Sit</button>
+              <button v-on:click="action_stand" style="width:150px">Stand</button>
+              <button v-on:click="action_sing" style="width:150px">Sing</button>
+              <button v-on:click="action_dance" style="width:150px">Dance</button>
+              <button v-on:click="action_charge" style="width:150px">Charge</button>
+            </div>
+              <div class="col-sm-5">
+                <aiboimage/>
+              </div>
+            <div>
+              <button v-on:click="logout()">
+              Logout
+              </button>
+            </div>            
           </div>
-            <div class="col-sm-5">
-              <aiboimage/>
-            </div>
-          <div>
-            <button v-on:click="logout()">
-            Logout
-            </button>
-          </div>            
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-3">
-                <aiboaction @myresponse="saveServerResponse" @logMsg="saveLogMessage"/>
-            </div>
-            <div class="form-group col-sm-2">
-                <span></span>
-            </div>
-            <div class="form-group col-sm-7">
-                <aiboresponse :responses="responses"/>
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-sm-12">
-                <aibolog :logMessages="logMessages"/>
-            </div>
+          <div class="row">
+              <div class="form-group col-sm-3">
+                  <aiboaction @myresponse="saveServerResponse" @logMsg="saveLogMessage"/>
+              </div>
+              <div class="form-group col-sm-2">
+                  <span></span>
+              </div>
+              <div class="form-group col-sm-7">
+                  <aiboresponse :responses="responses"/>
+              </div>
+          </div>
+          <div class="row">
+              <div class="form-group col-sm-12">
+                  <aibolog :logMessages="logMessages"/>
+              </div>
+          </div>
         </div>
     </div>
 </template>
 
 <script>
+import {io} from 'socket.io-client';
 import aiboimage from '@/components/aiboimage.vue';
 import aiboaction from '@/components/aiboaction.vue';
 import aiboresponse from '@/components/aiboresponse.vue';
@@ -69,6 +72,10 @@ export default {
       responses: '',
       logMessages: '',
       baseUrl: process.env.VUE_APP_AIBO_URL,
+      deviceId: '',
+      nickname: '',
+      authenticated: false,
+      socket: io(),
     }
   },
   methods: {
@@ -105,6 +112,14 @@ export default {
       window.location.href = `/logout`;
     }
   },
+  created () {
+    this.socket.emit('login', {});
+    this.socket.on('auth', (data) => {
+      this.nickname = data.nickname;
+      this.deviceId = data.deviceId;
+      this.authenticated = true;
+    });
+  }
 };
 </script>
 

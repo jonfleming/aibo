@@ -1,8 +1,7 @@
 const axios = require('axios');
-// const { HttpsProxyAgent } = require('hpagent');
-
-const basePath = 'https://public.api.aibo.com/v1';
 const { deviceId, accessToken } = process.env;
+
+const BASE_URL = 'https://myaibo.aibo.com';
 
 class AiboRequest {
   constructor(apiName, data) {
@@ -57,7 +56,7 @@ class AiboRequest {
   }
 
   async sendRequest() {
-    const url = `${basePath}/devices/${deviceId}/capabilities/${this.apiName}/execute`;
+    const url = `${BASE_URL}/v1/devices/${deviceId}/capabilities/${this.apiName}/execute`;
     let data;
 
 
@@ -82,7 +81,7 @@ class AiboRequest {
 
   async getResult(executionId) {
     this.log(`getResult executionId: ${executionId}`);
-    const resultUrl = `${basePath}/executions/${executionId}`;
+    const resultUrl = `${BASE_URL}/v1/executions/${executionId}`;
     const result = await this.request(resultUrl, 'GET');
 
     // {status: 200, statusText:'OK', config: {url:...},
