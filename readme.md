@@ -24,3 +24,12 @@ set NODE_PORT=<port-for-web-app | 81>
 set VUE_APP_AIBO_URL=<URL-for-web-app | http://localhost:81>
 set AIBO_CLIENT_ID=<client-id>
 set AIBO_CLIENT_SECRET=<client-secret>
+```
+
+The Sony Authorization/Authentication is not working but, you can take your access token from the Aibo developer site and add it to your URL to authenticate yourself.
+
+Example:
+```
+http://localhost:81?token=<access-token>
+```
+This will bypass the Sony login page and take you directly into the app.

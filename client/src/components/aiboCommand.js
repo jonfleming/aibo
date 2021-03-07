@@ -38,7 +38,7 @@ export default class AiboCommand {
       },
     };
 
-    this.log('sencAction Options', options);
+    this.log('sendAction Options', options);
     const result = await this.send(options);    
     this.log('sendAction result', result);
     if (result.executionId && result.executionId !== 'undefined') {

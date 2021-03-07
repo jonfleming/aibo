@@ -1,26 +1,18 @@
 const http = require('http');
-const fetch = require('node-fetch');
+const got = require('got');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
 const express = require('express');
 const app = express();
 const httpServer = http.createServer(app);
-const io = require('socket.io')(httpServer);
-
-io.on('connection', client => {
-  client.on('login', data => {
-    
-  });
-  client.on('disconnect', () => {});
-});
-
 const AiboRequest = require('./AiboRequest');
 
 const CLIENT_ID = process.env.AIBO_CLIENT_ID;
 const CLIENT_SECRET = process.env.AIBO_CLIENT_SECRET;
 const REDIRECT_URI = 'https://aibo.jonfleming.net/auth';
-const BASE_URL = 'https://myaibo.aibo.com';
+const BASE_URL = 'https://public.api.aibo.com';
+const AUTH_URL = 'https://myaibo.aibo.com';
 
 const corsOptions = {
   origin: ['https://jonfleming.net', 'https://jonfleming.net:81', 'https://aibo.jonfleming.net', 'http://localhost:8080', 'http://localhost:81'],
@@ -46,10 +38,9 @@ function randomGenerate(len) {
 
 async function getAccessToken(code) {
   const url = `${BASE_URL}/v1//oauth2/token`;
-  const response = await fetch(url, {
-    method: 'POST',
-    mode: '*cors', 
-    cache: 'no-cache', 
+  const response = await got(url, {
+    retry: 0,
+    method: 'POST',  
     credentials: 'same-origin', 
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -58,15 +49,17 @@ async function getAccessToken(code) {
     referrerPolicy: 'no-referrer',
     body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}`
   });
-  return response.json();
+  if (response.status === 200) {
+    const json = JSON.parse(response.body);
+    return json;
+  }
+  return { error: response.StatusText, status: response.status };
 }
 
 async function getDeviceId(req) {
   const url = `${BASE_URL}/v1/devices`;
-  const response = await fetch(url, {
+  const response = await got(url, {
     method: 'GET',
-    mode: '*cors', 
-    cache: 'no-cache', 
     credentials: 'same-origin', 
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -75,7 +68,11 @@ async function getDeviceId(req) {
     redirect: 'follow',
     referrerPolicy: 'no-referrer',
   });
-  return response.json();
+  if (response.statusCode === 200) {
+    const json = JSON.parse(response.body).devices[0];
+    return json;
+  }
+  return { error: response.statusText, status: response.statusCode };
 }
 
 app.use(express.json());
@@ -90,46 +87,63 @@ app.use(session({
   cookie: { path: '/', httpOnly: true, secure: true, maxAge: null },
 }));
 
-app.get('/', (req, res, next) => {
+app.get('/', async (req, res, next) => {
   log('root', req.query);
-  log('session', req.session);
+  const { token } = req.query;
+
+  if(token) {
+    req.session.authenticated = true;
+    Object.assign(req.session, {accessToken: token });    
+    log('session before getDeviceId', req.session);
+    const deviceResponse = await getDeviceId(req);
+    Object.assign(req.session, deviceResponse); // deviceId, nickname
+    res.cookie('session', req.session);
+    req.session.save();
+    log('session after save', req.session);
+    return next();
+  }
+
   if(!req.session.authenticated) {
     req.session.state = randomGenerate(12);
     log(`state: ${req.session.state}`);
-    const url = `${BASE_URL}/account_link.html?state=${req.session.state}&` +
+    const url = `${AUTH_URL}/account_link.html?state=${req.session.state}&` +
     `client_id=${CLIENT_ID}&scope=pub&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
     log(`URL: ${url}`);
-    //res.send(`<html><body><a href="${url}">Sign In</a></body></html>`);
-    res.redirect(url);
+    res.send(`<html><body><a href="${url}">Sign In</a></body></html>`);
+    //res.send(`<html><meta http-equiv="Refresh" content="0; URL=${url}"></html>`);
+    //res.redirect(url);
   } else {
+    res.cookie('session', req.session);
     next();
   }
 });
 
 app.use(express.static(staticFiles));
 
-app.get('/auth', async (req, res) => {
+app.get('/auth', async (req, res, next) => {
   const { code, state } = req.query;
-  log(`code: ${code}`);
+  log(`code: ${code} state: ${state} token: ${token}`);
   log('query',  req.query);
   log('session', req.session);
 
-  if (state === req.session.state) {
+  if (state && state === req.session.state) {
     const tokenResponse = await getAccessToken(code);
-    Object.assign(tokenResponse, req.session);
+    Object.assign(req.session, tokenResponse);
     req.session.authenticated = true;
 
     const deviceResponse = await getDeviceId(req);
-    Object.assign(deviceResponse, req.session);
-    io.emit('auth', req.session);
+    Object.assign(req.session, deviceResponse);
+    //io.emit('auth', req.session);
   }
+
+  res.status(403).send('Not logged in');
 });
 
 app.post('/action', (req, res) => {
   log('Body', req.body);
 
-  const aibo = new AiboRequest(req.body.apiName, req.body.arguments);
+  const aibo = new AiboRequest(req.session, req.body.apiName, req.body.arguments);
   aibo.sendRequest()
     .then((result) => {
       log('/action send res 200');
@@ -141,7 +155,7 @@ app.get('/result/:executionId', (req, res) => {
   log(`/result/${req.params.executionId}`);
 
   if (req.params.executionId && req.params.executionId !== 'undefined') {
-    const aibo = new AiboRequest();
+    const aibo = new AiboRequest(req.session);
     aibo.getResult(req.params.executionId)
       .then((result) => {
         log('/result send res 200');
