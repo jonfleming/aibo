@@ -23,3 +23,12 @@ Build:
 Linkable app
     ☐ Check /auth query for accessToken and skip tokenRequest. Update session and redirect to /
     ☐ send deviceId and accessToken from session to AiboRequest constructor (change from const to let)
+
+General:
+    ☐ Get working
+    ☐ Update log
+    ☐ Look at response from Move action - moved to position: false
+    
+
+
+

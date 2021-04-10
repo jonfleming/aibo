@@ -4,11 +4,12 @@
           <div class="col-sm-2">
             Name:{{nickname}}
           </div>
-          <div class="col-sm-8">
-            Aibo:{{deviceId}}
+          <div class="col-sm-8">&nbsp;
+            Aibo Device ID:{{deviceId}}
           </div>
           <div class="col-sm-2">
-            <a href="#">Unlink App</a>
+            <a href="#">Unlink</a>&nbsp;&nbsp;
+            <a href="#" v-on:click="logout()">Logout</a>
           </div>
         </div>
         <hr/>
@@ -25,9 +26,7 @@
               <aiboimage/>
             </div>
             <div class="col-sm-3">
-              <button v-on:click="logout()">
-              Logout
-              </button>
+
             </div>            
           </div>
           <div class="row">
