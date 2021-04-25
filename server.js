@@ -198,8 +198,8 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile('/favicon.ico', { root: __dirname });
 });
 
-httpServer.listen(process.env.NODE_PORT || 81);
+const port=process.env.NODE_PORT || 81;
+log(`Port set to ${port}`);
 
-
-// eslint-disable-next-line
+httpServer.listen(port);
 log(`Listening on ${httpServer.address().port}`);
