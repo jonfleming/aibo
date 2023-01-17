@@ -116,6 +116,7 @@ export default {
       const value = `; ${document.cookie}`;
       const parts = value.split( `; ${name}=`);
       if(parts.length ===2) return unescape(parts.pop().split(';').shift());
+      return '; { "nickname": "name", "deviceId": "device", "authenticated": true}';
     }
   },
   mounted: function () {

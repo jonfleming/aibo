@@ -59,7 +59,7 @@ export default class AiboCommand {
       aibo.timeout--;
       const options = {
         method: 'get',
-        url: `${aibo.baseUrl}/result/${aibo.executionId}`,
+        url: `${aibo.baseUrl}/api/result/${aibo.executionId}`,
         headers: { 'x-security-token': 'abc123' },
       };
 

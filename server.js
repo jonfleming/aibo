@@ -1,3 +1,4 @@
+require('dotenv').config()
 const http = require('http');
 const got = require('got');
 const cors = require('cors');
@@ -10,12 +11,12 @@ const AiboRequest = require('./AiboRequest');
 
 const CLIENT_ID = process.env.AIBO_CLIENT_ID;
 const CLIENT_SECRET = process.env.AIBO_CLIENT_SECRET;
-const REDIRECT_URI = 'https://aibo.jonfleming.net/auth';
+const REDIRECT_URI = 'https://techion.net/auth';
 const BASE_URL = 'https://public.api.aibo.com';
 const AUTH_URL = 'https://myaibo.aibo.com';
 
 const corsOptions = {
-  origin: ['https://jonfleming.net', 'https://jonfleming.net:81', 'https://aibo.jonfleming.net', 'http://localhost:8080', 'http://localhost:81'],
+  origin: ['https://techion.net', 'https://techion.net:81', 'https://techion.net', 'http://localhost:8080', 'http://localhost:81'],
   optionsSuccessStatus: 200,
 };
 

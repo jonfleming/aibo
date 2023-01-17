@@ -9,7 +9,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "type": "pwa-node",
+            "type": "node",
             "console":"integratedTerminal"
         },
 
@@ -18,11 +18,10 @@
             "request": "attach",
             "name": "Node: Nodemon",
             "processId": "${command:PickProcess}",
-            "restart": true,
-            "protocol": "inspector"
+            "restart": true
         },
         {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": [
@@ -31,7 +30,7 @@
             "program": "${file}"
         },
         {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "Launch server",
             "console": "internalConsole",

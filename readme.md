@@ -33,3 +33,5 @@ Example:
 http://localhost:81?token=<access-token>
 ```
 This will bypass the Sony login page and take you directly into the app.
+
+Contact: jon@fleming.ai
